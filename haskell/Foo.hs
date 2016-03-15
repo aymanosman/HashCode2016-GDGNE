@@ -93,20 +93,35 @@ instance Show Warehouse where
     ]
 
 
--- lb, ub :: Int
--- lb = 0
--- ub = 9
+-- Processing
+{-
+Order
+ { ordCoords = (340,371)
+ , ordNumItems = 8, ordProdTypes = [226,183,6,220,299,280,12,42]}
+-}
 
--- grid :: Array Int Cell
--- grid =
---   listArray (lb, ub) (repeat emptyCell)
+fulfill
+  :: Order
+  -> (Int, Int) -- drone pos
+  -> [Warehouse]
+  -> [Command]
+fulfill ord (x, y) wares =
+  -- do goTo ware1
+  --    loadItems [a, b, c]
+  --    goTo ord1
+  --    unloadItems [a, b, c]
+  loads ++ []
+  where
+    Order _ordPos _ ordProds = ord
+    loads =
+      map
+      (\prodT -> Load 0 0 prodT 1)
+      ordProds
+    
 
--- data Cell = Cell
---   { cellWare :: Maybe Warehouse
---   } deriving (Show)
-
--- emptyCell :: Cell
--- emptyCell = Cell Nothing
+dist (a, b) (x, y) =
+  round . sqrt
+  $ abs (a - x) + abs (x - y)
 
 
 -- Output
@@ -121,6 +136,7 @@ data Command
   | UnLoad DroneId WareId ProdType Int
   | Deliver DroneId OrderId ProdType Int
   | Wait DroneId Int -- num of turns to wait
+  deriving (Show)
 
 renderCommand c =
   let ff s did wid pt n =
@@ -145,3 +161,20 @@ ex_commands =
   , Load 0 0 1 1
   , Deliver 0 0 0 1
   ]
+
+
+
+-- lb, ub :: Int
+-- lb = 0
+-- ub = 9
+
+-- grid :: Array Int Cell
+-- grid =
+--   listArray (lb, ub) (repeat emptyCell)
+
+-- data Cell = Cell
+--   { cellWare :: Maybe Warehouse
+--   } deriving (Show)
+
+-- emptyCell :: Cell
+-- emptyCell = Cell Nothing
