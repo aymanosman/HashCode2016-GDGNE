@@ -81,7 +81,17 @@ data Warehouse = Warehouse
  { wareId :: Int
  , wareCoord :: (Int, Int)
  , wareProdStock :: Map.Map Int Int -- prod stuff
- } deriving (Show)
+ }
+
+instance Show Warehouse where
+  show (Warehouse id coord prodStock) =
+    unwords
+    ["Warehouse"
+    , show id
+    , ": at"
+    , show coord
+    ]
+
 
 -- lb, ub :: Int
 -- lb = 0
