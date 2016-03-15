@@ -5,6 +5,13 @@ import qualified Data.Map as Map
 main :: IO ()
 main = run file2 >>= print
 
+main2 =
+  do (params, prods, wares, orders) <- run file1
+     putStrLn $ unlines $ map show $ commands orders
+  where
+    commands :: [Order] -> [Command]
+    commands ords = concatMap (fulfill (0,0) []) $ take 2 ords
+
 file1, file2 :: String
 file1 =  "../mother_of_all_warehouses.in"
 file2 = "../busy_day.in"
@@ -24,7 +31,7 @@ run filename =
          (numOrders':f3) = f2
          numOrders = read numOrders' :: Int
          (orders', f4) = splitAt (3*numOrders) f3
-         orders = map parseOrder $ chunksOf 3 orders' :: [Order]
+         orders = map parseOrder $ zip [0..] $ chunksOf 3 orders' :: [Order]
          prods = Map.fromAscList $ zip [0..] weights
 
          paramsExtra =
@@ -42,13 +49,13 @@ data Product = Product
   , prodWeight :: Int
   }
 
-parseOrder :: [String] -> Order
-parseOrder [coord', numItems', ptypes] =
+parseOrder :: (Int, [String]) -> Order
+parseOrder (ordId, [coord', numItems', ptypes]) =
   let [x, y] = read <$> words coord' :: [Int]
       numItems = read numItems' :: Int
       stock = read <$> words ptypes :: [Int]
   in
-    Order (x, y) numItems stock
+    Order ordId (x, y) numItems stock
 parseOrder _ = error "Bork! Expected thre length list"
 
 parseWare :: [String] -> Warehouse
@@ -61,7 +68,8 @@ parseWare [coord', prodFoo'] =
 parseWare _ = error "Bork! Expected two length list"
 
 data Order = Order
-  { ordCoords :: (Int, Int)
+  { ordId :: Int
+  , ordCoords :: (Int, Int)
   , ordNumItems :: Int
   , ordProdTypes :: [Int]
   } deriving (Show)
@@ -101,24 +109,28 @@ Order
 -}
 
 fulfill
-  :: Order
-  -> (Int, Int) -- drone pos
+  ::(Int, Int) -- drone pos 
   -> [Warehouse]
+  -> Order 
   -> [Command]
-fulfill ord (x, y) wares =
+fulfill (x, y) wares ord =
   -- do goTo ware1
   --    loadItems [a, b, c]
   --    goTo ord1
   --    unloadItems [a, b, c]
-  loads ++ []
+  loads ++ delivers ++ []
   where
-    Order _ordPos _ ordProds = ord
+    drone = 0
+    Order ordId _ordPos _ ordProds = ord
     loads =
       map
-      (\prodT -> Load 0 0 prodT 1)
+      (\prodT -> Load drone 0 prodT 1)
+      ordProds
+    delivers =
+      map
+      (\prodT -> Deliver drone ordId prodT 1)
       ordProds
     
-
 dist (a, b) (x, y) =
   round . sqrt
   $ abs (a - x) + abs (x - y)
