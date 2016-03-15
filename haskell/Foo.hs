@@ -27,7 +27,7 @@ run filename =
          weights = read <$> words weights' :: [Int] -- assert lenght w == numP
          numWares = read numWares' :: Int
          (wares', f2) = splitAt (2*numWares) f1
-         wares = map parseWare $ chunksOf 2 wares' :: [Warehouse]
+         wares = map parseWare $ zip [0..] $ chunksOf 2 wares' :: [Warehouse]
          (numOrders':f3) = f2
          numOrders = read numOrders' :: Int
          (orders', f4) = splitAt (3*numOrders) f3
@@ -58,13 +58,13 @@ parseOrder (ordId, [coord', numItems', ptypes]) =
     Order ordId (x, y) numItems stock
 parseOrder _ = error "Bork! Expected thre length list"
 
-parseWare :: [String] -> Warehouse
-parseWare [coord', prodFoo'] =
+parseWare :: (Int, [String])-> Warehouse
+parseWare (wareId, [coord', prodFoo']) =
   let [x, y] = read <$> words coord' :: [Int]
       prodFoo = read <$> words prodFoo' :: [Int]
       stock = Map.fromAscList $ zip [0..] prodFoo
   in
-    Warehouse 99 (x, y) stock
+    Warehouse wareId (x, y) stock
 parseWare _ = error "Bork! Expected two length list"
 
 data Order = Order
