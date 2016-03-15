@@ -84,3 +84,41 @@ data Warehouse = Warehouse
 
 -- emptyCell :: Cell
 -- emptyCell = Cell Nothing
+
+
+-- Output
+
+type DroneId = Int
+type WareId = Int
+type ProdType = Int
+type OrderId = Int
+
+data Command
+  = Load DroneId WareId ProdType Int
+  | UnLoad DroneId WareId ProdType Int
+  | Deliver DroneId OrderId ProdType Int
+  | Wait DroneId Int -- num of turns to wait
+
+renderCommand c =
+  let ff s did wid pt n =
+        unwords [show did, s, show wid, show pt, show n]
+  in
+  case c of
+    Load did wid pt n ->
+      ff "L" did wid pt n
+
+    UnLoad did wid pt n ->
+      ff "U" did wid pt n
+
+    Deliver did wid pt n ->
+      ff "D" did wid pt n
+
+    Wait did turns ->
+      unwords [show did, "W", show turns]
+
+
+ex_commands =
+  [ Load 0 0 0 1
+  , Load 0 0 1 1
+  , Deliver 0 0 0 1
+  ]
