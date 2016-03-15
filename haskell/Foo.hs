@@ -15,8 +15,8 @@ run filename =
      let
          (params':numprodtypes':weights':numWares':f1) = f
          [a,b,c,d,e] = read <$> words params' :: [Int]
-         params = Params a b c d e
-         numProdTypes = read numprodtypes' :: Int
+         -- params = Params a b c d e
+         -- numProdTypes = read numprodtypes' :: Int -- assert numProdTypes == Map.size prods
          weights = read <$> words weights' :: [Int] -- assert lenght w == numP
          numWares = read numWares' :: Int
          (wares', f2) = splitAt (2*numWares) f1
@@ -25,12 +25,22 @@ run filename =
          numOrders = read numOrders' :: Int
          (orders', f4) = splitAt (3*numOrders) f3
          orders = map parseOrder $ chunksOf 3 orders' :: [Order]
+         prods = Map.fromAscList $ zip [0..] weights
+
+         paramsExtra =
+           ParamsExtra a b c d e (length wares) (length orders) (Map.size prods)
 
          -- max' (x, y) (p, q) = (max x p, max y q)
          -- largest (x, y) = foldr1 max' $ map (snd . ordCoords) ords
          -- (395, 577) in file2 and (237,395) in file1
 
-     return (params, numProdTypes, weights, wares, orders)
+     return (paramsExtra, prods, wares, orders)
+
+
+data Product = Product
+  { prodType :: Int
+  , prodWeight :: Int
+  }
 
 parseOrder :: [String] -> Order
 parseOrder [coord', numItems', ptypes] =
@@ -56,12 +66,15 @@ data Order = Order
   , ordProdTypes :: [Int]
   } deriving (Show)
 
-data Params = Params
+data Params = ParamsExtra
   { numRows :: Int -- 1 to 10,000
   , numCols :: Int -- 1 to 10,000
   , numDrones :: Int -- 1 to 1000
   , deadline :: Int -- 1 to 1,000,000
   , maxLoad :: Int -- 1 to 10,000
+  , numWares :: Int
+  , numOrders :: Int
+  , numProds :: Int
   } deriving (Show)
 
 data Warehouse = Warehouse
