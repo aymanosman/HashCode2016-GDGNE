@@ -31,19 +31,18 @@ parse' file =
 
 
 parseOrder :: Int -> [String] -> Order
-parseOrder ordId [coord', numItems', ptypes] =
+parseOrder oid [coord', numItems', ptypes] =
   let [x, y] = read <$> words coord' :: [Int]
-      numItems = read numItems' :: Int
       stock = read <$> words ptypes :: [Int]
   in
-    Order ordId (x, y) numItems stock
+    Order oid (x, y) (read numItems') stock
 parseOrder _ _ = error "Bork! Expected three length list"
 
 parseWare :: Int -> [String] -> Warehouse
-parseWare wareId [coord', prodFoo'] =
+parseWare wid [coord', prodFoo'] =
   let [x, y] = read <$> words coord' :: [Int]
       prodFoo = read <$> words prodFoo' :: [Int]
       stock = Map.fromAscList $ zip [0..] prodFoo
   in
-    Warehouse wareId (x, y) stock
+    Warehouse wid (x, y) stock
 parseWare _ _ = error "Bork! Expected two length list"
