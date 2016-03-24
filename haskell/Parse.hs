@@ -8,7 +8,7 @@ import Model
 parse filename =
   parse' <$> readFile filename
 
-parse' :: String -> (Params, Map.Map Int Int, [Warehouse], [Order])
+-- parse' :: String -> (Params, Map.Map Int Int, [Warehouse], [Order])
 parse' file =
   (paramsExtra, prods, wares, orders)
   where
@@ -16,12 +16,14 @@ parse' file =
     [a,b,c,d,e] = read <$> words params' :: [Int]
     -- params = Params a b c d e
     -- numProdTypes = read numprodtypes' :: Int -- assert numProdTypes == Map.size prods
-    weights = read <$> words weights' :: [Int] -- assert lenght w == numP
     (wares', f2) = splitAt (2*read numWares') f1
     wares = zipWith parseWare [0..] $ chunksOf 2 wares' :: [Warehouse]
+
     (numOrders':f3) = f2
     (orders', _f4) = splitAt (3*read numOrders') f3
     orders = zipWith parseOrder [0..] $ chunksOf 3 orders' :: [Order]
+
+    weights = read <$> words weights' :: [Int] -- assert lenght w == numP
     prods = Map.fromAscList $ zip [0..] weights
 
     paramsExtra =
@@ -45,4 +47,3 @@ parseWare wareId [coord', prodFoo'] =
   in
     Warehouse wareId (x, y) stock
 parseWare _ _ = error "Bork! Expected two length list"
-
